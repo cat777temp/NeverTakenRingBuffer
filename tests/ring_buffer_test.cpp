@@ -76,20 +76,37 @@ void test_boundary_conditions() {
         // 预期的异常
     }
 
-    // 测试越界访问 - 现在不会抛出异常，而是返回默认值
+    // 测试越界访问 - 现在会抛出异常
     RingBuffer<int> buffer(3);
     buffer.append(10);
 
-    // 只有一个元素，索引1应该越界，返回默认值0
-    int value = buffer.at(1);
-    assert(value == 0); // 默认构造的int值为0
+    // 测试越界访问应该抛出异常
+    try {
+        int value = buffer.at(1); // 只有一个元素，索引1应该越界
+        assert(false); // 不应该到达这里
+    } catch (const std::out_of_range& e) {
+        // 预期的异常
+    }
 
-    // 测试非const at方法
-    int& ref = buffer.at(0);
-    ref = 20; // 修改通过at(0)获取的引用
+    // 测试修改元素
+    buffer[0] = 20; // 使用operator[]修改元素
     assert(buffer.at(0) == 20); // 验证修改成功
 
     std::cout << "Boundary conditions test passed!" << std::endl;
+}
+
+class TestClass
+{
+public:
+    TestClass() : buffer(3) {}
+private:
+    RingBuffer<std::string> buffer;
+};
+
+void testUsingRingBufferInClass() {
+    std::cout << "Testing using RingBuffer in a class..." << std::endl;
+    TestClass testClass;
+    std::cout << "Using RingBuffer in a class test passed!" << std::endl;
 }
 
 int main() {
@@ -98,6 +115,7 @@ int main() {
     test_int_buffer();
     test_string_buffer();
     test_boundary_conditions();
+    testUsingRingBufferInClass();
 
     std::cout << "All tests passed!" << std::endl;
     return 0;

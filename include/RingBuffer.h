@@ -28,24 +28,16 @@ public:
         }
     }
 
-    const T& at(size_t index) const {
-        // 如果索引超出范围，返回默认值（不抛出异常）
-        if (index >= m_size) {
-            static T default_value = T();
-            return default_value;
-        }
-        size_t actual_index = (m_head - 1 - index + m_capacity) % m_capacity;
-        return m_buffer[actual_index];
+    T& operator[](size_t index) {
+        return at_impl(index);
     }
 
-    T& at(size_t index) {
-        // 如果索引超出范围，返回默认值（不抛出异常）
-        if (index >= m_size) {
-            static T default_value = T();
-            return default_value;
-        }
-        size_t actual_index = (m_head - 1 - index + m_capacity) % m_capacity;
-        return m_buffer[actual_index];
+    const T& operator[](size_t index) const {
+        return at_impl(index);
+    }
+
+    const T& at(size_t index) const {
+        return at_impl(index);
     }
 
     size_t size() const {
@@ -57,6 +49,24 @@ public:
     }
 
 private:
+    // 非 const 版本的 at_impl
+    T& at_impl(size_t index) {
+        if (index < m_size) {
+            size_t actual_index = (m_head - 1 - index + m_capacity) % m_capacity;
+            return m_buffer[actual_index];
+        }
+        throw std::out_of_range("Index out of range");
+    }
+
+    // const 版本的 at_impl
+    const T& at_impl(size_t index) const {
+        if (index < m_size) {
+            size_t actual_index = (m_head - 1 - index + m_capacity) % m_capacity;
+            return m_buffer[actual_index];
+        }
+        throw std::out_of_range("Index out of range");
+    }
+
     std::vector<T> m_buffer;
     size_t m_capacity;
     size_t m_size;
